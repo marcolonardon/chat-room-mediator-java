@@ -1,17 +1,46 @@
 package unaerp.br;
 
-//TIP To <b>Run</b> code, press <shortcut actionId="Run"/> or
-// click the <icon src="AllIcons.Actions.Execute"/> icon in the gutter.
-public class Main {
-    public static void main(String[] args) {
-        //TIP Press <shortcut actionId="ShowIntentionActions"/> with your caret at the highlighted text
-        // to see how IntelliJ IDEA suggests fixing it.
-        System.out.printf("Hello and welcome!");
+import unaerp.br.client.ChatClient;
+import unaerp.br.server.ChatServer;
 
-        for (int i = 1; i <= 5; i++) {
-            //TIP Press <shortcut actionId="Debug"/> to start debugging your code. We have set one <icon src="AllIcons.Debugger.Db_set_breakpoint"/> breakpoint
-            // for you, but you can always add more by pressing <shortcut actionId="ToggleLineBreakpoint"/>.
-            System.out.println("i = " + i);
+public class Main {
+
+    public static void main(String[] args) throws Exception {
+        if (args.length == 0) {
+            printUsage();
+            return;
         }
+
+        switch (args[0]) {
+            case "--server" -> {
+                int port = args.length > 1 ? Integer.parseInt(args[1]) : 9090;
+                ChatServer server = new ChatServer(port);
+                server.start();
+                Runtime.getRuntime().addShutdownHook(new Thread(server::stop));
+                server.awaitTermination();
+            }
+            case "--client" -> {
+                if (args.length < 4) {
+                    System.err.println("Uso: --client <host:port> <username> <sala>");
+                    return;
+                }
+                String[] hostPort = args[1].split(":");
+                String host = hostPort[0];
+                int port = Integer.parseInt(hostPort[1]);
+                String username = args[2];
+                String room = args[3];
+
+                ChatClient client = new ChatClient(host, port);
+                Runtime.getRuntime().addShutdownHook(new Thread(client::close));
+                client.connect(username, room);
+            }
+            default -> printUsage();
+        }
+    }
+
+    private static void printUsage() {
+        System.out.println("Uso:");
+        System.out.println("  Servidor: --server [porta]              (padrão: 9090)");
+        System.out.println("  Cliente:  --client <host:porta> <username> <sala>");
     }
 }

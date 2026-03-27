@@ -44,7 +44,6 @@ public class ChatClient {
             }
         });
 
-        // First message registers username and room on the server
         sendMessage(username, room, "");
         System.out.printf("Conectado como '%s' na sala '%s'. Digite /exit para sair.%n", username, room);
 
