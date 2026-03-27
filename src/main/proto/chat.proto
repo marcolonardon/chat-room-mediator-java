@@ -1,0 +1,17 @@
+syntax = "proto3";
+
+option java_package = "unaerp.br.proto";
+option java_outer_classname = "ChatProto";
+option java_multiple_files = true;
+
+package chat;
+
+message ChatMessage {
+  string username = 1;
+  string room     = 2;
+  string content  = 3;
+}
+
+service ChatService {
+  rpc Chat(stream ChatMessage) returns (stream ChatMessage);
+}
